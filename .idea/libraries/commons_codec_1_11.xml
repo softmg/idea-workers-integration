@@ -1,0 +1,29 @@
+<component name="libraryTable">
+  <library name="commons-codec-1.11">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/Downloads/httpcomponents-client-4.5.7-bin/httpcomponents-client-4.5.7/lib/commons-codec-1.11.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/httpcomponents-client-4.5.7-bin/httpcomponents-client-4.5.7/lib/jna-platform-4.5.2.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/httpcomponents-client-4.5.7-bin/httpcomponents-client-4.5.7/lib/httpclient-cache-4.5.7.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/httpcomponents-client-4.5.7-bin/httpcomponents-client-4.5.7/lib/httpmime-4.5.7.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/httpcomponents-client-4.5.7-bin/httpcomponents-client-4.5.7/lib/httpcore-4.4.11.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/httpcomponents-client-4.5.7-bin/httpcomponents-client-4.5.7/lib/httpclient-osgi-4.5.7.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/httpcomponents-client-4.5.7-bin/httpcomponents-client-4.5.7/lib/jna-4.5.2.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/httpcomponents-client-4.5.7-bin/httpcomponents-client-4.5.7/lib/httpclient-win-4.5.7.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/httpcomponents-client-4.5.7-bin/httpcomponents-client-4.5.7/lib/fluent-hc-4.5.7.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/httpcomponents-client-4.5.7-bin/httpcomponents-client-4.5.7/lib/commons-logging-1.2.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/httpcomponents-client-4.5.7-bin/httpcomponents-client-4.5.7/lib/httpclient-4.5.7.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/jackson-core-2.2.3.jar/jackson-core-2.2.3.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/lombok.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/jackson-annotations-2.2.3.jar/jackson-annotations-2.2.3.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/jackson-databind-2.2.3.jar/jackson-databind-2.2.3.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/jar_files/spring-aop-5.1.6.RELEASE.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/jar_files/spring-jcl-5.1.6.RELEASE.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/jar_files/spring-expression-5.1.6.RELEASE.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/jar_files/spring-context-5.1.6.RELEASE.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/jar_files/spring-core-5.1.6.RELEASE.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/jar_files/spring-beans-5.1.6.RELEASE.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

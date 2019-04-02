@@ -1,0 +1,34 @@
+<idea-plugin>
+  <id>ru.softmg.workers</id>
+  <name>Workers integration</name>
+  <version>1.0</version>
+  <vendor email="karmanno@gmail.com" url="http://www.softmg.ru">SoftMG</vendor>
+
+  <description>
+    This plugin provides you integration with Workers API
+  </description>
+
+  <change-notes>
+    26.03.2018 Initial executable jar created
+  </change-notes>
+
+  <idea-version since-build="173.0"/>
+
+  <depends>com.intellij.modules.lang</depends>
+
+  <extensions defaultExtensionNs="com.intellij">
+    <toolWindow id="Workers" secondary="true" icon="/tool/plus.png" anchor="right" factoryClass="ru.softmg.workers.ui.WorkersMainToolWindowFactory" />
+  </extensions>
+
+  <actions>
+  </actions>
+
+    <application-components>
+        <component>
+            <implementation-class>ru.softmg.workers.repository.CurrentUserComponent</implementation-class>
+        </component>
+        <component>
+            <implementation-class>ru.softmg.workers.repository.UserDailyReportsComponent</implementation-class>
+        </component>
+    </application-components>
+</idea-plugin>
