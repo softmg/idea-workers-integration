@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class WorkReport {
+public class WorkReport extends RequestBase {
     @JsonProperty("project_id")
     private Integer projectId;
 

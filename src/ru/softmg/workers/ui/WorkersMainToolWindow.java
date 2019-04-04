@@ -17,6 +17,7 @@ import java.awt.event.MouseEvent;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class WorkersMainToolWindow {
@@ -31,23 +32,24 @@ public class WorkersMainToolWindow {
     private JLabel reportMainLabel;
     private JButton publishButton;
 
-    private void refresh() {
-        try(WorkersApiService workersApiService = new WorkersApiService()) {
-            ReportsPage reportsPage = workersApiService.postGetReports();
-            ReportsTableModel reportsTableModel = (ReportsTableModel)reportsTable.getModel();
+    private WorkersApiService workersApiService = new WorkersApiService();
 
-            List<Report> filteredReports = reportsPage.getData().stream()
-                    .filter(report -> {
-                        LocalDateTime localDateTime = LocalDateTime.parse(report.getUpdatedAt(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-                        return localDateTime.getDayOfMonth() == LocalDateTime.now().getDayOfMonth() &&
-                                localDateTime.getMonth() == LocalDateTime.now().getMonth() &&
-                                localDateTime.getYear() == LocalDateTime.now().getYear();
-                    }).collect(Collectors.toList());
-            reportsTableModel.setReports(filteredReports);
-            reportsTable.updateUI();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+    private void refresh() {
+        workersApiService.postGetReports().thenAccept(o -> {
+            ReportsPage reportsPage = (ReportsPage)o;
+            if(reportsPage != null) {
+                ReportsTableModel reportsTableModel = (ReportsTableModel)reportsTable.getModel();
+                List<Report> filteredReports = reportsPage.getData().stream()
+                        .filter(report -> {
+                            LocalDateTime localDateTime = LocalDateTime.parse(report.getUpdatedAt(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                            return localDateTime.getDayOfMonth() == LocalDateTime.now().getDayOfMonth() &&
+                                    localDateTime.getMonth() == LocalDateTime.now().getMonth() &&
+                                    localDateTime.getYear() == LocalDateTime.now().getYear();
+                        }).collect(Collectors.toList());
+                reportsTableModel.setReports(filteredReports);
+                reportsTable.updateUI();
+            }
+        });
     }
 
     WorkersMainToolWindow() {
@@ -56,7 +58,7 @@ public class WorkersMainToolWindow {
         reportMainLabel.setText("Report for today (" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) + ")");
 
         loginButton.addActionListener(e -> {
-            LoginDialog loginDialog = new LoginDialog();
+            LoginDialog loginDialog = new LoginDialog(workersApiService);
             loginDialog.setLoginHandler(user -> {
                 currentUserComponent.loadState(new CurrentUserComponent.State(user));
 
@@ -81,7 +83,7 @@ public class WorkersMainToolWindow {
         tableContentPanel.add(tableContainer, BorderLayout.CENTER);
 
         addButton.addActionListener(e -> {
-            AddReportDialog addReportDialog = new AddReportDialog();
+            AddReportDialog addReportDialog = new AddReportDialog(workersApiService);
             addReportDialog.pack();
             addReportDialog.setLocationRelativeTo(workersMainToolWindowContent);
             addReportDialog.setTitle("Add report");
@@ -109,14 +111,7 @@ public class WorkersMainToolWindow {
         });
 
         refreshButton.addActionListener(e -> refresh());
-        publishButton.addActionListener(e -> {
-            try(WorkersApiService workersApiService = new WorkersApiService()) {
-                workersApiService.postCreateDailyReport();
-                publishButton.setEnabled(false);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        });
+        publishButton.addActionListener(e -> workersApiService.postCreateDailyReport());
     }
 
     JPanel getContent() {

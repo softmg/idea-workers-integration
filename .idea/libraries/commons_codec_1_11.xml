@@ -16,12 +16,6 @@
       <root url="jar://$USER_HOME$/Downloads/lombok.jar!/" />
       <root url="jar://$USER_HOME$/Downloads/jackson-annotations-2.2.3.jar/jackson-annotations-2.2.3.jar!/" />
       <root url="jar://$USER_HOME$/Downloads/jackson-databind-2.2.3.jar/jackson-databind-2.2.3.jar!/" />
-      <root url="jar://$USER_HOME$/Downloads/jar_files/spring-aop-5.1.6.RELEASE.jar!/" />
-      <root url="jar://$USER_HOME$/Downloads/jar_files/spring-jcl-5.1.6.RELEASE.jar!/" />
-      <root url="jar://$USER_HOME$/Downloads/jar_files/spring-expression-5.1.6.RELEASE.jar!/" />
-      <root url="jar://$USER_HOME$/Downloads/jar_files/spring-context-5.1.6.RELEASE.jar!/" />
-      <root url="jar://$USER_HOME$/Downloads/jar_files/spring-core-5.1.6.RELEASE.jar!/" />
-      <root url="jar://$USER_HOME$/Downloads/jar_files/spring-beans-5.1.6.RELEASE.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

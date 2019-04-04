@@ -5,6 +5,7 @@ import ru.softmg.workers.model.User;
 
 import javax.swing.*;
 import java.awt.event.*;
+import java.io.IOException;
 
 public class LoginDialog extends JDialog {
     private JPanel contentPane;
@@ -14,7 +15,11 @@ public class LoginDialog extends JDialog {
     private JTextField textField1;
     private LoginHandler loginHandler;
 
-    LoginDialog() {
+    private WorkersApiService workersApiService;
+
+    LoginDialog(WorkersApiService workersApiService) {
+        this.workersApiService = workersApiService;
+
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
@@ -39,10 +44,10 @@ public class LoginDialog extends JDialog {
     }
 
     private void onOK() {
-        try(WorkersApiService workersApiService = new WorkersApiService()) {
-            User user = workersApiService.postLogin(textField1.getText(), new String(passwordField1.getPassword()));
-            loginHandler.loggedInHandler(user);
-        } catch (Exception e) {
+        try {
+            workersApiService.postLogin(textField1.getText(), new String(passwordField1.getPassword()))
+                    .thenAccept(o -> loginHandler.loggedInHandler((User)o));
+        } catch (IOException e) {
             e.printStackTrace();
         }
         dispose();

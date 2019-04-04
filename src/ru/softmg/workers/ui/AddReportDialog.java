@@ -6,6 +6,7 @@ import ru.softmg.workers.model.Task;
 
 import javax.swing.*;
 import java.awt.event.*;
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -20,8 +21,10 @@ public class AddReportDialog extends JDialog {
     private JTextArea textArea1;
 
     private AddReportHandler addReportHandler;
+    private WorkersApiService workersApiService;
 
-    public AddReportDialog() {
+    public AddReportDialog(WorkersApiService workersApiService) {
+        this.workersApiService = workersApiService;
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
@@ -29,13 +32,13 @@ public class AddReportDialog extends JDialog {
         IntStream.iterate(0, operand -> operand + 1).limit(24).forEach(value -> hoursComboBox.addItem(String.valueOf(value)));
         IntStream.iterate(0, operand -> operand + 1).limit(60).forEach(value -> minutesComboBox.addItem(String.valueOf(value)));
 
-        try (WorkersApiService workersApiService = new WorkersApiService()) {
-            List<Project> projects = workersApiService.getProjectList();
-            ProjectsComboBoxModel projectsComboBoxModel = new ProjectsComboBoxModel(projects);
-            projectComboBox.setModel(projectsComboBoxModel);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        workersApiService.getProjectList().thenAccept(o -> {
+            List<Project> projects = (List<Project>)o;
+            if(projects != null) {
+                ProjectsComboBoxModel projectsComboBoxModel = new ProjectsComboBoxModel(projects);
+                projectComboBox.setModel(projectsComboBoxModel);
+            }
+        });
 
         buttonOK.addActionListener(e -> onOK());
 
@@ -50,35 +53,31 @@ public class AddReportDialog extends JDialog {
 
         contentPane.registerKeyboardAction(e -> onCancel(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 
-        projectComboBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Integer projectId = Integer.parseInt(((ProjectsComboBoxModel)projectComboBox.getModel()).getSelected().getId());
-
-                try(WorkersApiService workersApiService = new WorkersApiService()) {
-                    List<Task> taskList = workersApiService.getTasks(projectId);
-                    TasksComboBoxModel tasksComboBoxModel = new TasksComboBoxModel(taskList);
+        projectComboBox.addItemListener(e -> {
+            Integer projectId = Integer.parseInt(((ProjectsComboBoxModel)projectComboBox.getModel()).getSelected().getId());
+            try {
+                workersApiService.getTasks(projectId).thenAccept(o -> {
+                    List<Task> tasks = (List<Task>)o;
+                    TasksComboBoxModel tasksComboBoxModel = new TasksComboBoxModel(tasks);
                     taskComboBox.setModel(tasksComboBoxModel);
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
+                });
+            } catch (IOException e1) {
+                e1.printStackTrace();
             }
         });
     }
 
     private void onOK() {
-        try(WorkersApiService workersApiService = new WorkersApiService()) {
+        try {
             workersApiService.postCreateWorkReport(
                     Integer.parseInt(((ProjectsComboBoxModel)projectComboBox.getModel()).getSelected().getId()),
                     ((TasksComboBoxModel)taskComboBox.getModel()).getSelected().getId(),
                     Integer.parseInt((String)hoursComboBox.getSelectedItem()) * 60 + Integer.parseInt((String)minutesComboBox.getSelectedItem()),
                     textArea1.getText()
-            );
-            addReportHandler.reportAddHandler();
-        } catch (Exception ex) {
-            ex.printStackTrace();
+            ).thenAccept(o -> addReportHandler.reportAddHandler());
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        dispose();
     }
 
     public void setAddReportHandler(AddReportHandler addReportHandler) {

@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class GetTasksRequest {
+public class GetTasksRequest extends RequestBase {
     @JsonProperty("id")
     private Integer projectId;
 }
