@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>ru.softmg.workers</id>
   <name>Workers integration</name>
-  <version>1.0</version>
+  <version>1.1</version>
   <vendor email="karmanno@gmail.com" url="http://www.softmg.ru">SoftMG</vendor>
 
   <description>
@@ -9,7 +9,7 @@
   </description>
 
   <change-notes>
-    26.03.2018 Initial executable jar created
+    04.04.2018 Redeveloped approach to the API-plugin interactions, added all IDEs support
   </change-notes>
 
   <idea-version since-build="173.0"/>
@@ -21,6 +21,9 @@
   </extensions>
 
   <actions>
+      <action class="ru.softmg.workers.action.TimerAction" description="Timer" text="Timer" icon="/tool/plus.png" >
+          <add-to-group group-id="MainToolBar" anchor="last" />
+      </action>
   </actions>
 
     <application-components>

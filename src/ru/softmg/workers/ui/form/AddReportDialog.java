@@ -1,8 +1,11 @@
-package ru.softmg.workers.ui;
+package ru.softmg.workers.ui.form;
 
 import ru.softmg.workers.http.WorkersApiService;
 import ru.softmg.workers.model.Project;
 import ru.softmg.workers.model.Task;
+import ru.softmg.workers.ui.handler.AddReportHandler;
+import ru.softmg.workers.ui.model.ProjectsComboBoxModel;
+import ru.softmg.workers.ui.model.TasksComboBoxModel;
 
 import javax.swing.*;
 import java.awt.event.*;

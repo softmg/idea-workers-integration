@@ -1,7 +1,8 @@
-package ru.softmg.workers.ui;
+package ru.softmg.workers.ui.form;
 
 import ru.softmg.workers.http.WorkersApiService;
 import ru.softmg.workers.model.User;
+import ru.softmg.workers.ui.handler.LoginHandler;
 
 import javax.swing.*;
 import java.awt.event.*;

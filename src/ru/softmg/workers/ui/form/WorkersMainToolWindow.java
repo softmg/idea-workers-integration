@@ -1,23 +1,31 @@
-package ru.softmg.workers.ui;
+package ru.softmg.workers.ui.form;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.table.JBTable;
 import ru.softmg.workers.http.WorkersApiService;
+import ru.softmg.workers.model.Project;
 import ru.softmg.workers.model.Report;
 import ru.softmg.workers.model.ReportsPage;
+import ru.softmg.workers.model.Task;
 import ru.softmg.workers.repository.CurrentUserComponent;
 import ru.softmg.workers.repository.UserDailyReportsComponent;
+import ru.softmg.workers.ui.handler.TickHandler;
+import ru.softmg.workers.ui.model.ProjectsComboBoxModel;
+import ru.softmg.workers.ui.model.ReportsTableModel;
+import ru.softmg.workers.ui.model.TasksComboBoxModel;
 
 import javax.swing.*;
 import javax.swing.table.TableModel;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class WorkersMainToolWindow {
@@ -31,6 +39,13 @@ public class WorkersMainToolWindow {
     private JButton addButton;
     private JLabel reportMainLabel;
     private JButton publishButton;
+    private JComboBox projectComboBox;
+    private JComboBox taskComboBox;
+    private JButton startButton;
+    private JLabel timerLabel;
+    private JButton saveButton;
+
+    Thread timerThread = null;
 
     private WorkersApiService workersApiService = new WorkersApiService();
 
@@ -52,7 +67,7 @@ public class WorkersMainToolWindow {
         });
     }
 
-    WorkersMainToolWindow() {
+    public WorkersMainToolWindow() {
         CurrentUserComponent currentUserComponent = ApplicationManager.getApplication().getComponent(CurrentUserComponent.class);
         reportsPanel.setVisible(false);
         reportMainLabel.setText("Report for today (" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) + ")");
@@ -112,9 +127,73 @@ public class WorkersMainToolWindow {
 
         refreshButton.addActionListener(e -> refresh());
         publishButton.addActionListener(e -> workersApiService.postCreateDailyReport());
+
+        workersApiService.getProjectList().thenAccept(o -> {
+            List<Project> projects = (List<Project>)o;
+            if(projects != null) {
+                ProjectsComboBoxModel projectsComboBoxModel = new ProjectsComboBoxModel(projects);
+                projectComboBox.setModel(projectsComboBoxModel);
+            }
+        });
+
+        projectComboBox.addItemListener(e -> {
+            Integer projectId = Integer.parseInt(((ProjectsComboBoxModel)projectComboBox.getModel()).getSelected().getId());
+            try {
+                workersApiService.getTasks(projectId).thenAccept(o -> {
+                    List<Task> tasks = (List<Task>)o;
+                    TasksComboBoxModel tasksComboBoxModel = new TasksComboBoxModel(tasks);
+                    taskComboBox.setModel(tasksComboBoxModel);
+                });
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        });
+
+        startButton.addActionListener(e -> {
+            Project selectedProject = ((ProjectsComboBoxModel)projectComboBox.getModel()).getSelected();
+            Task selectedTask = ((TasksComboBoxModel)taskComboBox.getModel()).getSelected();
+            if(selectedProject != null && selectedTask != null) {
+                if(startButton.getText().equals("Start")) {
+                    timerThread = new Thread(new TimerService(tick -> timerLabel.setText(getTimer(tick))));
+                    timerThread.start();
+                } else {
+                    if(timerThread.isAlive())
+                        timerThread.interrupt();
+                    startButton.setText("Start");
+                }
+            }
+        });
     }
 
-    JPanel getContent() {
+    private String getTimer(Integer timer) {
+        String hours = String.format("%02d", timer / 60);
+        String minutes = String.format("%02d", timer % 60);
+        return hours + ":" + minutes;
+    }
+
+    public JPanel getContent() {
         return workersMainToolWindowContent;
+    }
+
+    private static class TimerService implements Runnable {
+        private static Integer currentTimer = 0;
+        private TickHandler tickHandler = null;
+
+        public TimerService(TickHandler tickHandler) {
+            this.tickHandler = tickHandler;
+        }
+
+        @Override
+        public void run() {
+            while (true) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    return;
+                }
+                currentTimer++;
+                tickHandler.tick(currentTimer);
+            }
+        }
     }
 }

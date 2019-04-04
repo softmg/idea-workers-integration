@@ -36,7 +36,6 @@ public class WorkersApiService {
     }
 
     public CompletableFuture postLogin(String email, String password) throws IOException {
-        System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.SimpleLog");
         AuthorizedRequest<User> authorizedRequest = new AuthorizedRequestBuilder<User>()
                 .post(RestUrls.LOGIN)
                 .json().entity(new LoginRequest(email, password))

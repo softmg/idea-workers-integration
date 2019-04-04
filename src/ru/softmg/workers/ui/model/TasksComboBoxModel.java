@@ -1,4 +1,4 @@
-package ru.softmg.workers.ui;
+package ru.softmg.workers.ui.model;
 
 import lombok.Getter;
 import lombok.Setter;
