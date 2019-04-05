@@ -10,11 +10,13 @@ import ru.softmg.workers.model.ReportsPage;
 import ru.softmg.workers.model.Task;
 import ru.softmg.workers.repository.CurrentUserComponent;
 import ru.softmg.workers.repository.UserDailyReportsComponent;
+import ru.softmg.workers.ui.ColorTableRenderer;
 import ru.softmg.workers.ui.handler.TickHandler;
 import ru.softmg.workers.ui.model.ProjectsComboBoxModel;
 import ru.softmg.workers.ui.model.ReportsTableModel;
 import ru.softmg.workers.ui.model.TasksComboBoxModel;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.table.TableModel;
 import java.awt.*;
@@ -23,6 +25,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -46,6 +49,7 @@ public class WorkersMainToolWindow {
     private JButton saveButton;
 
     Thread timerThread = null;
+    Integer currentTick = 0;
 
     private WorkersApiService workersApiService = new WorkersApiService();
 
@@ -93,6 +97,7 @@ public class WorkersMainToolWindow {
         UserDailyReportsComponent userDailyReportsComponent = ApplicationManager.getApplication().getComponent(UserDailyReportsComponent.class);
         TableModel tableModel = new ReportsTableModel(userDailyReportsComponent.getState().getReports());
         reportsTable = new JBTable(tableModel);
+        reportsTable.setDefaultRenderer(String.class, new ColorTableRenderer());
         tableContentPanel.setLayout(new BorderLayout());
         JBScrollPane tableContainer = new JBScrollPane(reportsTable);
         tableContentPanel.add(tableContainer, BorderLayout.CENTER);
@@ -137,15 +142,17 @@ public class WorkersMainToolWindow {
         });
 
         projectComboBox.addItemListener(e -> {
-            Integer projectId = Integer.parseInt(((ProjectsComboBoxModel)projectComboBox.getModel()).getSelected().getId());
-            try {
-                workersApiService.getTasks(projectId).thenAccept(o -> {
-                    List<Task> tasks = (List<Task>)o;
-                    TasksComboBoxModel tasksComboBoxModel = new TasksComboBoxModel(tasks);
-                    taskComboBox.setModel(tasksComboBoxModel);
-                });
-            } catch (IOException e1) {
-                e1.printStackTrace();
+            if(projectComboBox.getSelectedItem() != null) {
+                Integer projectId = Integer.parseInt(((ProjectsComboBoxModel)projectComboBox.getModel()).getSelected().getId());
+                try {
+                    workersApiService.getTasks(projectId).thenAccept(o -> {
+                        List<Task> tasks = (List<Task>)o;
+                        TasksComboBoxModel tasksComboBoxModel = new TasksComboBoxModel(tasks);
+                        taskComboBox.setModel(tasksComboBoxModel);
+                    });
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
             }
         });
 
@@ -154,8 +161,11 @@ public class WorkersMainToolWindow {
             Task selectedTask = ((TasksComboBoxModel)taskComboBox.getModel()).getSelected();
             if(selectedProject != null && selectedTask != null) {
                 if(startButton.getText().equals("Start")) {
-                    timerThread = new Thread(new TimerService(tick -> timerLabel.setText(getTimer(tick))));
+                    timerThread = new Thread(new TimerService(this::timerTick));
                     timerThread.start();
+                    startButton.setText("Stop");
+                    projectComboBox.setEnabled(false);
+                    taskComboBox.setEnabled(false);
                 } else {
                     if(timerThread.isAlive())
                         timerThread.interrupt();
@@ -163,12 +173,47 @@ public class WorkersMainToolWindow {
                 }
             }
         });
+
+        saveButton.addActionListener(e -> {
+            Project selectedProject = ((ProjectsComboBoxModel)projectComboBox.getModel()).getSelected();
+            Task selectedTask = ((TasksComboBoxModel)taskComboBox.getModel()).getSelected();
+            ((ReportsTableModel)reportsTable.getModel()).getReports().add(
+                    new Report(
+                            null,
+                            null,
+                            Integer.parseInt(selectedProject.getId()),
+                            selectedTask.getId(),
+                            selectedTask.getName(),
+                            "",
+                            currentTick,
+                            LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                            LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                            selectedProject.getName(),
+                            null,
+                            selectedTask.getName().split(":")[0],
+                            "",
+                            true
+                            ));
+            projectComboBox.setEnabled(true);
+            projectComboBox.setSelectedItem(null);
+            taskComboBox.setEnabled(true);
+            taskComboBox.setSelectedItem(null);
+            reportsTable.updateUI();
+
+            timerThread = new Thread(new TimerService(0, this::timerTick));
+        });
+    }
+
+    private void timerTick(Integer tick) {
+        this.currentTick = tick;
+        timerLabel.setText(getTimer(tick));
     }
 
     private String getTimer(Integer timer) {
-        String hours = String.format("%02d", timer / 60);
-        String minutes = String.format("%02d", timer % 60);
-        return hours + ":" + minutes;
+        String hours = String.format("%02d", timer / 3600);
+        String minutes = String.format("%02d", (timer % 3600) / 60);
+        String seconds = String.format("%02d", (timer % 3600) % 60);
+        return hours + ":" + minutes + ":" + seconds;
     }
 
     public JPanel getContent() {
@@ -181,6 +226,12 @@ public class WorkersMainToolWindow {
 
         public TimerService(TickHandler tickHandler) {
             this.tickHandler = tickHandler;
+        }
+
+        public TimerService(Integer timer, TickHandler tickHandler) {
+            currentTimer = timer;
+            this.tickHandler = tickHandler;
+            tickHandler.tick(currentTimer);
         }
 
         @Override

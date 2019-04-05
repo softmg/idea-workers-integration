@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>ru.softmg.workers</id>
   <name>Workers integration</name>
-  <version>1.1</version>
+  <version>1.11</version>
   <vendor email="karmanno@gmail.com" url="http://www.softmg.ru">SoftMG</vendor>
 
   <description>
@@ -9,7 +9,7 @@
   </description>
 
   <change-notes>
-    04.04.2018 Redeveloped approach to the API-plugin interactions, added all IDEs support
+    04.04.2018 Added timer on left action panel with project and task loaders
   </change-notes>
 
   <idea-version since-build="173.0"/>

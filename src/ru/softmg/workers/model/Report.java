@@ -1,5 +1,6 @@
 package ru.softmg.workers.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,6 +10,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Report {
+    public Report(Integer projectId, Integer taskId, String comment, Integer spentTime) {
+        this.projectId = projectId;
+        this.taskId = taskId;
+        this.comment = comment;
+        this.spentTime = spentTime;
+    }
+
     @JsonProperty("id")
     private Integer id;
 
@@ -47,4 +55,7 @@ public class Report {
 
     @JsonProperty("jira_url")
     private String jiraUrl;
+
+    @JsonIgnore
+    private Boolean isTemporary = false;
 }

@@ -27,7 +27,7 @@ public class ReportsTableModel implements TableModel {
 
     @Override
     public int getColumnCount() {
-        return 4;
+        return 5;
     }
 
     @Override
@@ -41,6 +41,8 @@ public class ReportsTableModel implements TableModel {
                 return "Task";
             case 3:
                 return "Spent";
+            case 4:
+                return "Actions";
         }
         return "";
     }
@@ -83,6 +85,8 @@ public class ReportsTableModel implements TableModel {
                 int minutes = spentTime % 60;
                 return hours + "h " + minutes + "m";
             }
+            case 4:
+                return "";
         }
         return null;
     }
